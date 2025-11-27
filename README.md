@@ -47,7 +47,64 @@ pip install transformers>=4.35.0
 
 ## 🚀 使用方法
 
-### 1️⃣ 命令行使用（最简单）
+### 🌟 超简单方式（推荐新手）
+
+如果你觉得命令行太复杂，我们提供了两个**开箱即用**的脚本：
+
+#### 📄 统计单个文件 - `quick_count.py`
+
+```python
+# 1. 打开 quick_count.py 文件
+# 2. 修改第 9 行的文件路径
+FILE_PATH = "README.md"  # 👈 改成你的文件路径
+
+# 3. 运行脚本
+python quick_count.py
+```
+
+**示例输出:**
+```
+============================================================
+📊 统计结果
+============================================================
+文件路径: README.md
+Token 数量: 1,971
+字符总数: 5,331
+文件大小: 5.21 KB
+💰 API 成本估算（仅供参考）:
+  GPT-4: $0.0591
+  DeepSeek: $0.0020
+```
+
+#### 📁 批量统计目录 - `quick_batch.py`
+
+```python
+# 1. 打开 quick_batch.py 文件
+# 2. 修改配置（第 9-11 行）
+DIRECTORY_PATH = "./examples"  # 👈 改成你的目录路径
+FILE_PATTERN = "*.py"          # 👈 文件类型: *.md, *.txt, *.py 等
+RECURSIVE = True               # 👈 是否处理子目录: True 或 False
+
+# 3. 运行脚本
+python quick_batch.py
+```
+
+**示例输出:**
+```
+============================================================
+📊 统计汇总
+============================================================
+文件总数: 2
+Token 总数: 1,033
+平均每文件: 516 tokens
+📈 Token 数最多的文件 (Top 5):
+  1. basic_usage.py: 601 tokens
+  2. batch_processing.py: 432 tokens
+```
+
+---
+
+### 1️⃣ 命令行使用
 
 安装完成后，可以直接使用 `deepseek-tokenizer` 命令：
 
@@ -220,6 +277,8 @@ deepseek-tokenizer batch . --pattern "*.md" --recursive
 
 ```
 deepseek-v3-tokenizer-plus/
+├── quick_count.py              # 🌟 快速统计单文件（超简单）
+├── quick_batch.py              # 🌟 快速批量统计（超简单）
 ├── src/deepseek_tokenizer/     # 核心代码
 │   ├── cli/                    # 命令行工具
 │   │   └── main.py            # CLI 入口
