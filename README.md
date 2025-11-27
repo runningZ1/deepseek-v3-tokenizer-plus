@@ -1,142 +1,297 @@
-# DeepSeek Tokenizer Toolkit
+# DeepSeek V3 Tokenizer Plus
 
-> 基于 DeepSeek V3 模型的统一 Tokenizer、统计与 CLI 工具集
+> 一个简单易用的 DeepSeek V3 模型 Token 统计工具
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Quick Facts
+## 📖 简介
 
-| 功能 | 描述 |
-|------|------|
-| 📝 文本编码/解码 | 深度封装 `DeepSeekTokenizer`，支持中英文混合文本 |
-| 🚀 统一 CLI | `deepseek-tokenizer` 覆盖 count / estimate / encode / decode |
-| 📊 精确统计 | `TokenCounter` 提供文件、目录及 API 成本分析 |
-| ⚡ 快速估算 | `SimpleEstimator` 无需加载模型即可估算 token |
-| 📁 批量处理 | 递归目录扫描、多扩展名过滤、JSON 报告导出 |
-| 🔄 兼容旧脚本 | 旧版 `markdown_token_counter.py` 等仍保留在 `docs/legacy/` |
+这是一个基于 DeepSeek V3 模型的 Token 统计工具，可以帮助你快速统计文本、文件或整个项目的 Token 数量。
 
----
+**适用场景:**
+- 📝 统计文档的 Token 数量
+- 💰 估算 API 调用成本
+- 📊 分析项目代码的 Token 使用情况
+- 🔍 在提交给 AI 前检查内容长度
 
-## ✨ 特性
+## ✨ 主要功能
 
-- 🚀 **高效 Token 统计**：单文件、批量目录、一键导出 JSON 报告
-- 🔧 **统一 CLI 子命令**：`count`、`estimate`、`encode`、`decode` 覆盖主要场景
-- 📦 **Python 包**：`deepseek_tokenizer` 作为库导入，支持自定义模型路径
-- 🎯 **快速估算模式**：无需加载模型即可获得大致 token 数
-- 📊 **详细统计**：字符、中英文占比、行数、API 成本估算等
-- 🌐 **多格式支持**：Markdown、TXT 以及其他纯文本扩展名
+- ✅ **命令行工具**: 一键统计文件或目录的 Token 数
+- ✅ **Python 库**: 在代码中直接调用
+- ✅ **批量处理**: 支持递归处理整个项目目录
+- ✅ **详细统计**: 显示字符数、单词数、行数等详细信息
+- ✅ **多语言支持**: 完美支持中英文混合文本
 
 ## 📦 安装
 
-### 方式 1：开发模式 (推荐)
+### 方法 1: 从 GitHub 安装（推荐）
 
 ```bash
-git clone <repo-url>
-cd deepseek_v3_tokenizer
+# 克隆项目
+git clone https://github.com/runningZ1/deepseek-v3-tokenizer-plus.git
+cd deepseek-v3-tokenizer-plus
+
+# 安装依赖
 pip install -r requirements.txt
+
+# 安装项目（开发模式）
 pip install -e .
 ```
 
-### 方式 2：只运行 CLI
+### 方法 2: 仅安装依赖
 
 ```bash
-pip install -r requirements.txt
-python src/deepseek_tokenizer/cli/main.py --help
+pip install transformers>=4.35.0
 ```
 
-## 🚀 快速开始
+## 🚀 使用方法
 
-安装后可以直接使用 `deepseek-tokenizer` 命令（或通过 `python -m deepseek_tokenizer.cli.main`）：
+### 1️⃣ 命令行使用（最简单）
+
+安装完成后，可以直接使用 `deepseek-tokenizer` 命令：
+
+#### 统计单个文件
 
 ```bash
-# 查看帮助
-deepseek-tokenizer --help
-
-# 统计单个文件
 deepseek-tokenizer count README.md
-
-# 统计目录并导出 JSON 报告
-deepseek-tokenizer count ./docs -o docs_report.json --detailed
-
-# 快速估算（无需模型）
-deepseek-tokenizer estimate README.md
-
-# 编码 / 解码
-deepseek-tokenizer encode "Hello, DeepSeek!"
-deepseek-tokenizer decode "1,8906,2787,2"
 ```
 
-更多示例请查看 `docs/overview/quickstart.md` 与 `docs/guides/examples.md`。
+输出示例：
+```
+============================================================
+📊 Token统计结果
+============================================================
+文件: README.md
+Token数: 1,350
+字符数: 3,735
+单词数: 411
+行数: 143
+```
 
-## 🧰 CLI 命令概览
+#### 统计多个文件
 
-| 命令 | 说明 | 关键参数 |
-|------|------|----------|
-| `count` | 使用 DeepSeek V3 模型精确统计 token | `path`, `-o/--output`, `-d/--detailed`, `-e/--extensions`, `--no-recursive`, `-m/--model` |
-| `estimate` | 启发式 token 估算，速度快 | `path` |
-| `encode` | 将文本编码成 token ids | `text`, `-m/--model`, `--show-tokens` |
-| `decode` | 将 token ids 还原为文本 | `token_ids`, `-m/--model` |
+```bash
+deepseek-tokenizer count file1.txt file2.md file3.py
+```
 
-详见 `docs/guides/cli.md`。
+#### 批量处理目录
 
-## 🐍 Python API
+```bash
+# 处理当前目录
+deepseek-tokenizer batch .
+
+# 处理指定目录
+deepseek-tokenizer batch ./docs
+
+# 递归处理所有子目录
+deepseek-tokenizer batch ./src --recursive
+
+# 只处理特定类型的文件
+deepseek-tokenizer batch ./src --pattern "*.py"
+deepseek-tokenizer batch ./docs --pattern "*.md"
+```
+
+### 2️⃣ Python 代码使用
+
+#### 基础用法
 
 ```python
-from deepseek_tokenizer.core import DeepSeekTokenizer, TokenCounter
-from deepseek_tokenizer.utils import SimpleEstimator
+from deepseek_tokenizer import DeepSeekTokenizer
 
-tokenizer = DeepSeekTokenizer(model_path="models/deepseek-v3")
-ids = tokenizer.encode("Hello, world!")
-text = tokenizer.decode(ids)
+# 初始化 tokenizer
+tokenizer = DeepSeekTokenizer()
 
-counter = TokenCounter(tokenizer)
-file_stats = counter.count_file("README.md")
-dir_stats = counter.count_directory("./docs", extensions=[".md"])
-cost = counter.estimate_api_cost(file_stats["token_count"], price_per_1k=0.03)
+# 统计文本的 Token 数
+text = "你好，世界！Hello, World!"
+token_count = tokenizer.count_tokens(text)
+print(f"Token 数量: {token_count}")  # 输出: Token 数量: 11
 
-estimate = SimpleEstimator.estimate_file("README.md")
+# 统计文件的 Token 数
+file_count = tokenizer.count_file_tokens("README.md")
+print(f"文件 Token 数: {file_count}")
 ```
 
-完整 API 请参考 `docs/guides/api.md` 与 `docs/reference/output_schema.md`。
+#### 批量处理文件
 
-## 📚 文档导航
+```python
+from deepseek_tokenizer import DeepSeekTokenizer
 
-- 文档索引：`docs/README.md`
-- 快速入门：`docs/overview/quickstart.md`
-- CLI 指南：`docs/guides/cli.md`
-- API 指南：`docs/guides/api.md`
-- 示例集合：`docs/guides/examples.md`
-- 配置说明：`docs/reference/configuration.md`
-- 输出模式：`docs/reference/output_schema.md`
-- 开发者文档：`docs/development/`
-- 旧版脚本与文档：`docs/legacy/`, `docs/archive/README_legacy.md`
+tokenizer = DeepSeekTokenizer()
+
+# 批量处理多个文件
+files = ["file1.txt", "file2.md", "file3.py"]
+results = tokenizer.batch_count_files(files)
+
+for file_path, count in results.items():
+    print(f"{file_path}: {count} tokens")
+```
+
+#### 使用 TokenCounter 获取详细信息
+
+```python
+from deepseek_tokenizer.core import TokenCounter
+
+counter = TokenCounter()
+
+# 获取详细的统计信息
+stats = counter.count_text("你好，世界！")
+print(f"Token 数: {stats['token_count']}")
+print(f"字符数: {stats['char_count']}")
+print(f"中文字符: {stats['chinese_chars']}")
+print(f"英文字符: {stats['english_chars']}")
+```
+
+### 3️⃣ 运行示例代码
+
+项目提供了完整的示例代码：
+
+```bash
+# 基础使用示例
+python examples/basic_usage.py
+
+# 批量处理示例
+python examples/batch_processing.py
+```
+
+## 📊 实际测试结果
+
+使用本工具统计的一些示例文件：
+
+| 文件 | Token 数 | 字符数 | 文件大小 |
+|------|---------|--------|---------|
+| README.md | 1,350 | 3,735 | 3.6 KB |
+| sample.md | 158 | 615 | 0.6 KB |
+
+## 🛠️ 命令参数说明
+
+### `count` 命令
+
+统计文件或目录的 Token 数量。
+
+```bash
+deepseek-tokenizer count <path> [options]
+```
+
+**参数:**
+- `path`: 文件或目录路径（必需）
+- `-o, --output`: 输出 JSON 报告到文件
+- `-d, --detailed`: 显示详细信息
+- `-e, --extensions`: 指定文件扩展名（如 `.md .txt`）
+- `--no-recursive`: 不递归处理子目录
+- `-m, --model`: 指定 tokenizer 模型路径
+
+**示例:**
+```bash
+# 基础统计
+deepseek-tokenizer count README.md
+
+# 导出详细报告
+deepseek-tokenizer count ./docs -o report.json --detailed
+
+# 只统计 Python 文件
+deepseek-tokenizer count ./src -e .py --recursive
+```
+
+### `batch` 命令
+
+批量处理目录中的文件。
+
+```bash
+deepseek-tokenizer batch <directory> [options]
+```
+
+**参数:**
+- `directory`: 目录路径（必需）
+- `--pattern`: 文件匹配模式（如 `*.py`）
+- `--recursive`: 递归处理子目录
+- `-o, --output`: 输出 JSON 报告
+
+**示例:**
+```bash
+# 批量处理目录
+deepseek-tokenizer batch ./docs
+
+# 递归处理所有 Markdown 文件
+deepseek-tokenizer batch . --pattern "*.md" --recursive
+```
 
 ## 🧱 项目结构
 
 ```
-deepseek_v3_tokenizer/
-├── src/deepseek_tokenizer/        # CLI、核心逻辑和工具
-│   ├── cli/main.py                # 统一入口 (count/estimate/encode/decode)
-│   ├── core/                      # DeepSeekTokenizer / TokenCounter 等
-│   └── utils/                     # SimpleEstimator、Formatter
-├── docs/                          # 文档（用户指南、参考、开发、legacy）
-├── configs/, models/              # 模型和配置文件
-├── scripts/, examples/, tests/    # 辅助脚本与测试
-├── README.md                      # 本文件
-└── README_legacy → docs/archive/README_legacy.md
+deepseek-v3-tokenizer-plus/
+├── src/deepseek_tokenizer/     # 核心代码
+│   ├── cli/                    # 命令行工具
+│   │   └── main.py            # CLI 入口
+│   ├── core/                   # 核心功能
+│   │   ├── tokenizer.py       # Tokenizer 封装
+│   │   └── counter.py         # Token 计数器
+│   └── utils/                  # 工具函数
+│       ├── estimator.py       # Token 估算
+│       └── formatter.py       # 格式化输出
+├── models/deepseek-v3/         # DeepSeek V3 模型文件
+│   ├── tokenizer.json
+│   └── tokenizer_config.json
+├── examples/                   # 示例代码
+│   ├── basic_usage.py         # 基础用法
+│   └── batch_processing.py    # 批量处理
+├── tests/                      # 测试文件
+├── README.md                   # 本文件
+├── requirements.txt            # 依赖列表
+└── setup.py                    # 安装配置
+```
+
+## 💡 常见问题
+
+### Q: 支持哪些文件格式？
+
+A: 支持所有文本文件，包括但不限于：
+- Markdown (`.md`)
+- Python (`.py`)
+- JavaScript (`.js`)
+- 文本文件 (`.txt`)
+- 等所有纯文本格式
+
+### Q: Token 统计准确吗？
+
+A: 是的！本工具使用 DeepSeek V3 官方的 tokenizer，统计结果与实际 API 调用完全一致。
+
+### Q: 可以统计整个项目吗？
+
+A: 可以！使用批量处理命令：
+```bash
+deepseek-tokenizer batch . --recursive
+```
+
+### Q: 如何自定义 tokenizer 模型？
+
+A: 使用 `-m` 参数指定模型路径：
+```bash
+deepseek-tokenizer count file.txt -m /path/to/your/tokenizer
 ```
 
 ## 🤝 贡献
 
+欢迎提交 Issue 和 Pull Request！
+
 ```bash
+# 安装开发依赖
 pip install -r requirements-dev.txt
-pip install -e .
+
+# 运行测试
 pytest
 ```
 
-欢迎通过 Issue / PR 提交改进，详情见 `docs/development/contributing.md`。
+## 📄 开源协议
 
-## 📄 许可证
+本项目采用 [MIT License](LICENSE) 开源协议。
 
-本项目采用 MIT License，详情参见 `LICENSE`。
+## 🔗 相关链接
+
+- [DeepSeek 官网](https://www.deepseek.com/)
+- [项目 GitHub](https://github.com/runningZ1/deepseek-v3-tokenizer-plus)
+- [问题反馈](https://github.com/runningZ1/deepseek-v3-tokenizer-plus/issues)
+
+---
+
+**💡 提示**: 如果觉得这个工具有用，欢迎给项目点个 ⭐ Star！
